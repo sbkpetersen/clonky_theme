@@ -1,0 +1,108 @@
+conky.config = {
+	background = true,
+	use_xft = true,
+	font = 'Monospace:size=9',
+	xftalpha = 0.8,
+	update_interval = 1.0,
+	total_run_times = 0,
+	own_window = true,
+	own_window_class = 'Conky',
+	own_window_type = 'normal',
+	own_window_transparent = false,
+	own_window_colour = 'black',
+	own_window_hints = 'undecorated,skip_pager,skip_taskbar',
+	double_buffer = true,
+	minimum_width = 400,
+	minimum_height = 200,
+	draw_shades = false,
+	draw_outline = false,
+	draw_borders = false,
+	draw_graph_borders = false,
+	stippled_borders = 0,
+	border_width = 0,
+	default_color = 'white',
+	default_shade_color = 'black',
+	default_outline_color = 'black',
+	alignment = 'top_left',
+	gap_x = 12,
+	gap_y = 12,
+	no_buffers = true,
+	uppercase = false,
+	cpu_avg_samples = 1,
+	net_avg_samples = 1,
+	use_spacer = 'none',
+	override_utf8_locale = yes,
+
+
+	lua_load = '~/.config/conky/myscripts/my.lua',
+	--lua_draw_hook_post = "main",
+
+	color1 = 'ff0000',
+	template0 = 'enp0s31f6',
+	template1 = [[sda,sdb,sdc]], 
+
+};
+
+conky.text = [[
+#${combine ${lua_parse conky_test} ${lua_parse conky_test2}}
+${font Verdana:style=Bold:size=16}${color1}${alignc}${time %a %d. %b %k:%M}
+$font$color${alignc}Kernel: $kernel Uptime: $uptime
+${color1}$stippled_hr
+#########################################
+#		Resources		#
+#########################################
+#####		CPU		    #####
+${color1}${font Noto Sans Mono:size=16}CPU ${font}$color ${cpu cpu0}% ${cpubar}
+${lua_parse conky_cpus}
+#####		Memory		    #####
+${color1}${font Noto Sans Mono:size=16}Memory$font
+${font}Usage:${alignr}${color}${font}${mem} / ${memmax}(${memperc}%)
+${membar}
+##### 		GPU & Temperature   ##### 
+${color1}${font Noto Sans Mono:size=16}GPU ${alignr} Temperature$font
+${color1}Usage ${color}${goto 170}${exec nvidia-smi | grep % | cut -c 61-63}% $color1${goto 215} CPU:$color $alignr${hwmon 0 temp 1}°C
+${color1}Frequency ${color}${goto 150} ${nvidia gpufreq}MHz $color1${goto 215} Storage:
+${color1}VRAM Usage ${color}${goto 150} ${exec nvidia-smi | grep % | cut -c 37-40}MB $color1${goto 215} $color ${goto 230}sda $alignr${exec hddtemp /dev/sda | awk '{print $NF}' }
+${color1}VRAM Frequency ${color}${goto 150} ${nvidia memfreq}MHz $color ${goto 230}sdb $alignr${exec hddtemp /dev/sdb | awk '{print $NF}' }
+${color1}Power Draw ${color}${goto 160} ${exec nvidia-smi | grep % | cut -c 21-23}W ${color1}${goto 215} GPU${color} ${alignr}  ${execi 60 nvidia-settings -query [gpu:0]/GPUCoreTemp -t}°C
+#####		Filesystem 	    #####
+${color1}${font Noto Sans Mono:size=16}File System$font
+${color1}/${alignr}$color${fs_used /} / ${fs_size /}(${fs_used_perc}%)
+${fs_bar 6 /}
+$font${color1}/home${alignr}$color${fs_used /home} / ${fs_size /home}(${fs_used_perc /home}%)
+${fs_bar 6 /}
+$font${color1}/backup${alignr}$color${fs_used /backup} / ${fs_size /backup}(${fs_used_perc /backup}%)
+${fs_bar 6 /}
+#########################################
+#		Processes		#
+#########################################
+${color1}$hr
+${voffset -5}PIDs by CPU-Usage ${goto 200}| ${alignr}PIDS by Memory-Usage
+${voffset -8}${color1}$hr
+${voffset -5}${font monospace:size=8}${goto 10}${color3}Name${goto 135}PID${goto 173}CPU ${goto 200}|${goto 215}${color3}Name${goto 350}PID${goto 385}MEM
+${goto 10}${top name 1}${goto 115}${top pid 1}${goto 159}${top cpu 1} ${goto 200}| ${goto 215}${top_mem name 1}${goto 330}${top_mem pid 1}${goto 370}${top_mem mem 1}
+${goto 10}${top name 2}${goto 115}${top pid 2}${goto 159}${top cpu 2} ${goto 200}| ${goto 215}${top_mem name 2}${goto 330}${top_mem pid 2}${goto 370}${top_mem mem 2}
+${goto 10}${top name 3}${goto 115}${top pid 3}${goto 159}${top cpu 3} ${goto 200}| ${goto 215}${top_mem name 3}${goto 330}${top_mem pid 3}${goto 370}${top_mem mem 3}
+${goto 10}${top name 4}${goto 115}${top pid 4}${goto 159}${top cpu 4} ${goto 200}| ${goto 215}${top_mem name 4}${goto 330}${top_mem pid 4}${goto 370}${top_mem mem 4}
+$color1$hr
+$font${color1}Connections${alignr}${color1}In:$color ${tcp_portmon 1 32767 count}  ${color1}Out:$color ${tcp_portmon 32768 61000 count}   ${color1}ALL:$color ${tcp_portmon 1 65535 count}
+${color1}$stippled_hr
+${color lightgrey}Down:$color ${downspeed $template0} k/s${color lightgrey} ${alignr}Up:$color ${upspeed ${template0}} k/s
+${downspeedgraph ${template0} 32,120 009bf9 ffffff} ${offset 40} ${upspeedgraph ${template0} 32,120 009bf9 ffffff}
+${color1}IPs:$color ${addr ${template0}} ${offset 20} ${if_gw} ${color1} ${alignr}Public IP:${color}${execi 7200 curl -s https://get.geojs.io/v1/ip}${else}  network down${endif}
+${color lightgrey}$stippled_hr
+${color1}Inbound Connection ${alignr} Local Service/Port$color
+${font Monospace:size=8}${if_empty ${tcp_portmon 1 32767 rhost 0}} No Inbound Connection ${else} ${tcp_portmon 1 32767 rhost 0} ${alignr} ${tcp_portmon 1 32767 lservice 0}
+ ${tcp_portmon 1 32767 rhost 1} ${alignr} ${tcp_portmon 1 32767 lservice 1}
+${endif}$font
+# ${tcp_portmon 1 32767 rhost 3} ${alignr} ${tcp_portmon 1 32767 lservice 3}
+# ${tcp_portmon 1 32767 rhost 4} ${alignr} ${tcp_portmon 1 32767 lservice 4}
+# ${tcp_portmon 1 32767 rhost 5} ${alignr} ${tcp_portmon 1 32767 lservice 5}
+$font${color1}Outbound Connection ${alignr} Remote Service/Port$color
+${font Monospace:size=8} ${tcp_portmon 32768 61000 rhost 0} ${alignr} ${tcp_portmon 32768 61000 rservice 0}
+ ${tcp_portmon 32768 61000 rhost 1} ${alignr} ${tcp_portmon 32768 61000 rservice 1}
+ ${tcp_portmon 32768 61000 rhost 2} ${alignr} ${tcp_portmon 32768 61000 rservice 2}
+ ${tcp_portmon 32768 61000 rhost 3} ${alignr} ${tcp_portmon 32768 61000 rservice 3}
+ ${tcp_portmon 32768 61000 rhost 4} ${alignr} ${tcp_portmon 32768 61000 rservice 4}
+ ${tcp_portmon 32768 61000 rhost 5} ${alignr} ${tcp_portmon 32768 61000 rservice 5}
+]];
